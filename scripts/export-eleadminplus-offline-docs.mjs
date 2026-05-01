@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const root = process.cwd();
-const scriptDir = path.dirname(new URL(import.meta.url).pathname);
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const mdScript = path.join(scriptDir, 'export-eleadminplus-md.mjs');
 const viewerScript = path.join(scriptDir, 'build-eleadminplus-offline-viewer.mjs');
 

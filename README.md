@@ -77,6 +77,12 @@ Windows PowerShell:
   "https://eleadmin.com/doc/eleadminplus/#/"
 ```
 
+Windows `cmd.exe`:
+
+```bat
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --user-data-dir="%TEMP%\chrome-eleadmin-md-profile" "https://eleadmin.com/doc/eleadminplus/#/"
+```
+
 在打开的 Chrome 窗口中手动登录，确认能看到文档内容后关闭该 Chrome 窗口。
 
 ### 2. 导出 Markdown 并生成离线页面
@@ -95,6 +101,12 @@ Windows PowerShell:
 node scripts/export-eleadminplus-offline-docs.mjs `
   --user-data-dir="$env:TEMP\chrome-eleadmin-md-profile" `
   --out-dir=eleadminplus-doc-md-all
+```
+
+Windows `cmd.exe`:
+
+```bat
+node scripts/export-eleadminplus-offline-docs.mjs --user-data-dir="%TEMP%\chrome-eleadmin-md-profile" --out-dir=eleadminplus-doc-md-all
 ```
 
 完成后打开：
@@ -232,4 +244,3 @@ node scripts/export-eleadminplus-offline-docs.mjs --skip-md
 生成后的 `index.html` 不依赖登录态。
 
 但这不代表你当然有权分发文档内容。请先确认对应版权、授权协议、购买条款和内部合规要求。
-
