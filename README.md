@@ -204,4 +204,6 @@ node scripts/export-eleadminplus-offline-docs.mjs --skip-md
 
 技术上可以。生成后的 `index.html` 不依赖登录态。
 
-但请确认你有权分发文档内容。开源仓库建议只发布脚本，不提交导出的文档内容。
+但请确认你有权分发文档内容。不提交导出的文档内容。
+
+

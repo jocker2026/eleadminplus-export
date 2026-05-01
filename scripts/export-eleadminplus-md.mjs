@@ -48,6 +48,112 @@ function decodeDocsifyPayload(payload, length = 16, offset = 4) {
   return Buffer.from(chunks.join('').replace(/[^A-Za-z0-9+/=]/g, ''), 'base64').toString('utf8');
 }
 
+function decodeBasicHtmlEntities(value) {
+  return String(value)
+    .replace(/&(emsp|ensp|thinsp);/gi, ' ')
+    .replace(/&(nbsp|#160|#xa0);/gi, ' ')
+    .replace(/\u00a0/g, ' ');
+}
+
+function stripHtmlTags(value) {
+  return String(value).replace(/<[^>]+>/g, '');
+}
+
+function decodeEmojiShortcodes(value) {
+  const emojiMap = {
+    smile: '😄',
+    grin: '😁',
+    joy: '😂',
+    rofl: '🤣',
+    relaxed: '☺️',
+    wink: '😉',
+    blush: '😊',
+    thinking: '🤔',
+    sob: '😭',
+    cry: '😢',
+    angry: '😠',
+    screaming: '😱',
+    thumbs_up: '👍',
+    thumbs_down: '👎',
+    ok_hand: '👌',
+    wave: '👋',
+    pray: '🙏',
+    tada: '🎉',
+    sparkles: '✨',
+    fire: '🔥',
+    rocket: '🚀',
+    bug: '🐛',
+    warning: '⚠️',
+    white_check_mark: '✅',
+    x: '❌',
+    bulb: '💡',
+    clap: '👏',
+    heart: '❤️',
+    broken_heart: '💔',
+    star: '⭐',
+    star2: '🌟',
+    eyes: '👀',
+    tada_heart: '💖',
+    party_popper: '🎉',
+    boom: '💥',
+    package: '📦',
+    memo: '📝',
+    lock: '🔒',
+    unlock: '🔓',
+    key: '🔑',
+    hammer: '🔨',
+    wrench: '🔧',
+    gear: '⚙️',
+    zap: '⚡',
+    construction: '🚧',
+    warning: '⚠️',
+    info: 'ℹ️',
+    heavy_check_mark: '✔️',
+    checkered_flag: '🏁',
+    hourglass: '⏳',
+    hourglass_flowing_sand: '⌛',
+    pushpin: '📌',
+    link: '🔗',
+    paperclip: '📎',
+    book: '📖',
+    books: '📚',
+    label: '🏷️',
+    dart: '🎯',
+    magnet: '🧲',
+    gem: '💎',
+    test_tube: '🧪',
+    alembic: '⚗️',
+    chart_with_upwards_trend: '📈',
+    chart_with_downwards_trend: '📉',
+    recycling: '♻️',
+    globe_with_meridians: '🌐',
+    iphone: '📱',
+    computer: '💻',
+    desktop_computer: '🖥️',
+    keyboard: '⌨️',
+    mouse: '🖱️',
+    camera: '📷',
+    art: '🎨',
+    broom: '🧹',
+    package_locked: '📦',
+    point_up: '☝️',
+    point_down: '👇',
+    point_left: '👈',
+    point_right: '👉'
+  };
+
+  return String(value).replace(/(^|[\s([{<'"\u3000])\:([a-z0-9_+-]+)\:(?=$|[\s)\]}>,'".!?，。；：、])/gi, (match, prefix, name) => {
+    const key = String(name).toLowerCase();
+    return emojiMap[key] ? `${prefix}${emojiMap[key]}` : match;
+  });
+}
+
+function normalizeExportMarkdown(markdown) {
+  return decodeEmojiShortcodes(decodeBasicHtmlEntities(markdown))
+    .replace(/<small\b[^>]*>([\s\S]*?)<\/small>/gi, (_, inner) => ` ${decodeBasicHtmlEntities(stripHtmlTags(inner)).trim()} `)
+    .replace(/[ \t]+(:id=[\w-]+)/g, ' $1');
+}
+
 async function waitForChrome() {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
   const start = Date.now();
@@ -231,7 +337,7 @@ function decodeRawJs(raw, url) {
     throw new Error(`Login prompt returned for ${url}`);
   }
   const payload = Function(`"use strict"; return (${raw});`)();
-  return decodeDocsifyPayload(payload);
+  return normalizeExportMarkdown(decodeDocsifyPayload(payload));
 }
 
 await mkdir(outDir, { recursive: true });
