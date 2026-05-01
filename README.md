@@ -10,13 +10,18 @@ Plus预览：[https://plus.eleadmin.com](https://plus.eleadmin.com)
 
 生成后的离线文档包含：
 
-- 左侧多级导航，保留原站文档结构
-- 全部子页面导出，默认按左侧导航的所有可点击页面导出
-- Markdown 源文件
-- 单文件离线阅读页 `index.html`
-- 本地搜索
+- 保留原站层级的左侧多级导航，支持全部展开、全部收起、当前项高亮
+- 默认导出左侧导航中的全部可点击页面，也可切换为仅导出一级页面
+- Markdown 源文件、`README.md` 页面索引、`_sidebar.md` 导航结构一并保留
+- 单文件离线阅读页 `index.html`，内嵌文档数据、样式和脚本，可直接本地打开
+- 本地全文搜索，支持按标题、导航标题和正文内容快速过滤
+- 上一篇 / 下一篇切换、回到顶部、阅读进度条等阅读辅助能力
+- 代码块语法高亮、语言标签、复制按钮
 - docsify tabs 语法支持，例如 JavaScript / TypeScript 标签切换
-- 文档内链自动映射到离线页面
+- 表格、图片、引用块、常见 Markdown 结构的离线渲染
+- 文档内链自动映射到离线页面，外链自动改为新窗口打开
+- 深色 / 浅色主题切换、侧边栏折叠、移动端目录抽屉
+- 在线演示区块自动转换为外链入口，避免离线页中出现失效的内嵌运行区域
 
 > 说明：本项目只是导出工具，不包含 EleAdminPlus 文档内容、账号、Cookie 或登录态。请确保你有权限访问、备份和处理对应文档内容。
 
@@ -48,6 +53,15 @@ Plus预览：[https://plus.eleadmin.com](https://plus.eleadmin.com)
 脚本不依赖 npm 包，使用 Node.js 内置能力和 Chrome DevTools Protocol。
 
 ## 快速开始
+
+### Windows 终端说明
+
+Windows 下最容易踩坑的是：`PowerShell` 和 `cmd.exe` 的命令语法不一样。
+
+- 如果提示符像 `PS C:\Users\name>`，你当前用的是 `PowerShell`。
+- 如果提示符像 `C:\Users\name>`，你当前用的是 `cmd.exe`。
+- `PowerShell` 可以使用反引号 `` ` `` 做多行续行。
+- `cmd.exe` 不能使用反引号 `` ` ``，建议直接复制单行命令。
 
 ### 1. 准备专用 Chrome profile
 
@@ -85,6 +99,14 @@ Windows `cmd.exe`:
 
 在打开的 Chrome 窗口中手动登录，确认能看到文档内容后关闭该 Chrome 窗口。
 
+如果你的 Chrome 不在默认安装路径，请把：
+
+```text
+C:\Program Files\Google\Chrome\Application\chrome.exe
+```
+
+替换成你本机的实际路径。
+
 ### 2. 导出 Markdown 并生成离线页面
 
 macOS / Linux:
@@ -107,6 +129,23 @@ Windows `cmd.exe`:
 
 ```bat
 node scripts/export-eleadminplus-offline-docs.mjs --user-data-dir="%TEMP%\chrome-eleadmin-md-profile" --out-dir=eleadminplus-doc-md-all
+```
+
+如果 Chrome 不在默认路径，可以显式指定：
+
+PowerShell:
+
+```powershell
+node scripts/export-eleadminplus-offline-docs.mjs `
+  --chrome-path="C:\Program Files\Google\Chrome\Application\chrome.exe" `
+  --user-data-dir="$env:TEMP\chrome-eleadmin-md-profile" `
+  --out-dir=eleadminplus-doc-md-all
+```
+
+Windows `cmd.exe`:
+
+```bat
+node scripts/export-eleadminplus-offline-docs.mjs --chrome-path="C:\Program Files\Google\Chrome\Application\chrome.exe" --user-data-dir="%TEMP%\chrome-eleadmin-md-profile" --out-dir=eleadminplus-doc-md-all
 ```
 
 完成后打开：
@@ -180,6 +219,14 @@ _sidebar.md     原始导航结构
 
 `index.html` 是单文件离线文档，已经内嵌导航、样式、搜索和文档内容。你可以只分发 `index.html`，也可以打包整个输出目录。
 
+它同时包含这些离线阅读能力：
+
+- 左侧导航树、顶部当前路径、当前页面标题
+- 搜索过滤、移动端目录按钮、侧边栏展开收起状态记忆
+- 深色 / 浅色主题切换，并记住上次选择
+- 代码复制、文档内页跳转、上一篇 / 下一篇导航
+- 本地 hash 路由，可直接定位到某个离线页面
+
 ## 脚本说明
 
 | 脚本 | 作用 |
@@ -230,6 +277,41 @@ Windows 示例：
 node scripts/export-eleadminplus-offline-docs.mjs `
   --chrome-path="C:\Program Files\Google\Chrome\Application\chrome.exe"
 ```
+
+Windows `cmd.exe` 示例：
+
+```bat
+node scripts/export-eleadminplus-offline-docs.mjs --chrome-path="C:\Program Files\Google\Chrome\Application\chrome.exe"
+```
+
+### 提示 `Unknown argument: \``
+
+说明你在 `cmd.exe` 里执行了 `PowerShell` 的多行命令，脚本把反引号 `` ` `` 当成了普通参数。
+
+例如下面这种写法：
+
+```powershell
+node scripts/export-eleadminplus-offline-docs.mjs `
+  --user-data-dir="$env:TEMP\chrome-eleadmin-md-profile" `
+  --out-dir=eleadminplus-doc-md-all
+```
+
+只能在 `PowerShell` 里执行，不能在 `cmd.exe` 里执行。
+
+如果你当前窗口提示符像 `C:\Users\name>`，请改用单行 `cmd.exe` 命令：
+
+```bat
+node scripts/export-eleadminplus-offline-docs.mjs --user-data-dir="%TEMP%\chrome-eleadmin-md-profile" --out-dir=eleadminplus-doc-md-all
+```
+
+### 提示 `--user-data-dir` 不是内部或外部命令
+
+说明你把多行命令拆开逐行执行了，第二行 `--user-data-dir=...` 被 Windows 当成了一条新命令。
+
+解决方法：
+
+1. 在 `PowerShell` 里完整执行带反引号的多行命令。
+2. 或者在 `cmd.exe` 里直接执行单行命令，不要拆行单独回车。
 
 ### 左侧导航或样式改了，是否需要重新抓取？
 
