@@ -151,27 +151,6 @@ _sidebar.md     原始导航结构
 | `scripts/export-eleadminplus-md.mjs` | 连接 Chrome，读取在线文档并保存 Markdown |
 | `scripts/build-eleadminplus-offline-viewer.mjs` | 根据 Markdown、`README.md`、`_sidebar.md` 生成离线 `index.html` |
 
-## Codex Skills
-
-仓库内提供两个可选 Codex skill：
-
-| Skill | 作用 |
-| --- | --- |
-| `skills/eleadminplus-offline-docs` | 导出 EleAdminPlus 在线文档并生成离线 `index.html` |
-| `skills/eleadminplus-dev-docs` | 开发时查询本地离线 Markdown，理解组件用法、属性、事件、插槽和示例 |
-
-启用方式：
-
-```bash
-cp -R skills/eleadminplus-offline-docs ~/.codex/skills/
-cp -R skills/eleadminplus-dev-docs ~/.codex/skills/
-```
-
-开发技能默认会查找 `./eleadminplus-doc-md-all`，也可以通过环境变量指定文档目录：
-
-```bash
-export ELEADMINPLUS_DOCS_DIR=/path/to/eleadminplus-doc-md-all
-```
 
 ## 安全提醒
 
