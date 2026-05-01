@@ -6,8 +6,7 @@ EleAdminPlus 官网：[https://eleadmin.com](https://eleadmin.com)
 
 Plus预览：[https://plus.eleadmin.com](https://plus.eleadmin.com)
 
-文档生成预览
-
+![EleAdminPlus 导出功能预览](https://raw.githubusercontent.com/jocker2026/eleadminplus-export/refs/heads/main/Preview.png)
 
 生成后的离线文档包含：
 
