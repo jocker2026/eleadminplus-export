@@ -63,12 +63,22 @@ async function waitForChrome() {
   throw new Error('Chrome did not start DevTools in time');
 }
 
-async function createTarget(url) {
-  const res = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(url)}`, {
+async function createTarget() {
+  // Create a blank target first, then navigate with CDP.
+  // This avoids Chrome trying to open its default new-tab page for the profile.
+  const res = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent('about:blank')}`, {
     method: 'PUT'
   });
   if (!res.ok) throw new Error(`Failed to create tab: ${res.status} ${res.statusText}`);
   return res.json();
+}
+
+function shouldIgnoreChromeStderr(text) {
+  return [
+    'Requested load of chrome://newtab/ for incorrect profile type.',
+    'task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)',
+    'task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)'
+  ].some((pattern) => text.includes(pattern));
 }
 
 class CdpClient {
@@ -232,18 +242,20 @@ const chrome = spawn(chromePath, [
   '--no-first-run',
   '--no-default-browser-check',
   '--disable-gpu',
+  '--homepage=about:blank',
   '--lang=zh-CN'
 ], { stdio: ['ignore', 'ignore', 'pipe'] });
 
 chrome.stderr.on('data', (chunk) => {
   const text = String(chunk);
-  if (!text.includes('DevTools listening') && !text.includes('ERROR')) return;
+  if (shouldIgnoreChromeStderr(text)) return;
+  if (!text.includes('DevTools listening') && !text.includes('ERROR') && !text.includes('WARNING')) return;
   process.stderr.write(text);
 });
 
 try {
   await waitForChrome();
-  const target = await createTarget(baseUrl);
+  const target = await createTarget();
   const client = new CdpClient(target.webSocketDebuggerUrl);
   await client.open();
   try {
